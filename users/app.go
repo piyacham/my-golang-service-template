@@ -2,8 +2,7 @@ package users
 
 import (
 	"encoding/json"
-
-	user_mgr "github.com/tinnagorn/my-golang-service-template/users"
+	user_mgr "github.com/tinnagorn/my-golang-service-template/database/user"
 	status_code "github.com/tinnagorn/my-golang-service-template/statuscode"
 )
 
