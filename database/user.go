@@ -18,6 +18,7 @@ type User struct {
 
 func GetListByUserID(userID string) (user []User, err error) {
 	db := GetDB()
+
 	err = db.Order("created_at desc").Where("user_id = ?", userID).Find(&user).Error
 	if err != nil {
 		return user, err

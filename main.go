@@ -17,6 +17,7 @@ import (
 	"github.com/tinnagorn/my-golang-service-template/database"
 	"github.com/tinnagorn/my-golang-service-template/health"
 	"github.com/tinnagorn/my-golang-service-template/inquirydata"
+	"github.com/tinnagorn/my-golang-service-template/users"
 	"github.com/tinnagorn/my-golang-service-template/utility"
 )
 
@@ -64,6 +65,14 @@ func main() {
 	inqDataService := inquirydata.NewService()
 	inqDataHandler := inquirydata.NewHandler(inqDataService)
 	router.POST("/inquiry-data", inqDataHandler.InquiryData)
+
+	userDataService := users.NewService()
+	userDataHandler := users.NewHandler(userDataService)
+	router.GET("/users", userDataService.getUsers)
+	router.GET("/users/{id}", userDataService.getUser)
+	router.POST("/users", userDataService.createUser)
+	router.PUT("/users/{id}", userDataService.updateUser)
+	router.DELETE("/users/{id}", userDataService.deleteUser)
 
 	go run(router)
 
