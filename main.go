@@ -66,7 +66,7 @@ func main() {
 	router.POST("/inquiry-data", inqDataHandler.InquiryData)
 
 	go run(router)
-	// Test
+	// Test by Chai
 	shutdown(router)
 }
 
