@@ -106,6 +106,9 @@ func (s *Service) deleteUser(requestID string, req *Request) ([]byte, error) {
 		result := Response{
 			Code:    status_code.DeleteUserError,
 			Message: "Delete User Failed !"
+			UserID   : user.user_id,
+			FirstName : user.first_name
+			LastName  : user.last_name
 		}
 		return nil, &result
 	}
