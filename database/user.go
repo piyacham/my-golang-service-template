@@ -16,7 +16,22 @@ type User struct {
 	DeletedAt time.Time `json:"deletedAt"`
 }
 
-func GetListByUserID(userID string) (user []User, err error) {
+/*
+ */
+func GetList(userID string) (user []User, err error) {
+	db := GetDB()
+
+	err = db.Order("created_at desc").Find(&user).Error
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
+}
+
+/*
+ */
+func GetUserByID(userID string) (user []User, err error) {
 	db := GetDB()
 
 	err = db.Order("created_at desc").Where("user_id = ?", userID).Find(&user).Error
@@ -27,10 +42,35 @@ func GetListByUserID(userID string) (user []User, err error) {
 	return user, nil
 }
 
+/*
+ */
 func CreateUser(user *User) (User, error) {
 	db := GetDB()
 	user.UserID = uuid.New().String()
 	if err := db.Create(&user).Error; err != nil {
+		return *user, err
+	}
+
+	return *user, nil
+}
+
+/*
+ */
+func updateUser(user *User) (User, error) {
+	db := GetDB()
+	if err := db.Update(&user).Error; err != nil {
+		return *user, err
+	}
+
+	return *user, nil
+}
+
+/*
+ */
+func deleteUser(user *User) (User, error) {
+	db := GetDB()
+
+	if err := db.Delete(&user).Error; err != nil {
 		return *user, err
 	}
 

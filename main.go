@@ -68,11 +68,10 @@ func main() {
 
 	userDataService := users.NewService()
 	userDataHandler := users.NewHandler(userDataService)
-	router.GET("/users", userDataService.getUsers)
-	router.GET("/users/{id}", userDataService.getUser)
+	router.GET("/users/{userID}", userDataService.getUser)
 	router.POST("/users", userDataService.createUser)
-	router.PUT("/users/{id}", userDataService.updateUser)
-	router.DELETE("/users/{id}", userDataService.deleteUser)
+	router.PUT("/users/{userID}", userDataService.updateUser)
+	router.DELETE("/users/{userID}", userDataService.deleteUser)
 
 	go run(router)
 
