@@ -58,8 +58,8 @@ func main() {
 
 	userDataService := users.NewService()
 	userDataHandler := users.NewHandler(userDataService)
-	router.POST("/users", userDataHandler.CreateUser) //Create User
-	//router.GET("/users/{userID}", userDataHandler.GetUser) //Get User
+	//router.POST("/users", userDataHandler.CreateUser) //Create User
+	router.GET("/users/{id}", userDataHandler.GetUser) //Get User
 	//router.PUT("/users/{userID}", userDataHandler.updateUser)
 	//router.DELETE("/users/{userID}", userDataHandler.deleteUser)
 
