@@ -15,8 +15,6 @@ import (
 	"github.com/tOnkowzl/libs/middleware"
 	"github.com/tinnagorn/my-golang-service-template/cachemanager"
 	"github.com/tinnagorn/my-golang-service-template/database"
-	"github.com/tinnagorn/my-golang-service-template/health"
-	"github.com/tinnagorn/my-golang-service-template/inquirydata"
 	"github.com/tinnagorn/my-golang-service-template/users"
 	"github.com/tinnagorn/my-golang-service-template/utility"
 )
@@ -58,20 +56,12 @@ func main() {
 
 	var router = newEcho()
 
-	healthService := health.NewService()
-	healthHandler := health.NewHandler(healthService)
-	router.GET("/health", healthHandler.HealthCheck)
-
-	inqDataService := inquirydata.NewService()
-	inqDataHandler := inquirydata.NewHandler(inqDataService)
-	router.POST("/inquiry-data", inqDataHandler.InquiryData)
-
 	userDataService := users.NewService()
 	userDataHandler := users.NewHandler(userDataService)
-	router.GET("/users/{userID}", userDataHandler.getUser)
-	router.POST("/users", userDataHandler.createUser)
-	router.PUT("/users/{userID}", userDataHandler.updateUser)
-	router.DELETE("/users/{userID}", userDataHandler.deleteUser)
+	router.POST("/users", userDataHandler.CreateUser) //Create User
+	//router.GET("/users/{userID}", userDataHandler.GetUser) //Get User
+	//router.PUT("/users/{userID}", userDataHandler.updateUser)
+	//router.DELETE("/users/{userID}", userDataHandler.deleteUser)
 
 	go run(router)
 
@@ -85,7 +75,7 @@ func newEcho() *echo.Echo {
 
 	m := middleware.New(viper.GetString("app.name"))
 	m.Skipper = func(c echo.Context) bool {
-		return c.Path() == "/builds" || c.Path() == "/health"
+		return c.Path() == "/builds" || c.Path() == "/health" || c.Path() == "/users"
 	}
 
 	e.Use(m.Build(buildstamp, githash))

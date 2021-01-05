@@ -1,9 +1,12 @@
 package users
 
 import (
+	"database/sql"
 	"encoding/json"
+	"math/rand"
+	"strconv"
 
-	user_mgr "github.com/tinnagorn/my-golang-service-template/database"
+	_ "github.com/go-sql-driver/mysql"
 	status_code "github.com/tinnagorn/my-golang-service-template/statuscode"
 )
 
@@ -14,106 +17,86 @@ func NewService() *Service {
 	return &Service{}
 }
 
-func (s *Service) getUser(requestID string, req *Request) ([]byte, error) {
+func dbConn() (db *sql.DB) {
+	dbDriver := "mysql"
+	dbUser := "admin"
+	dbPass := "password"
+	dbName := "example_db"
+	db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
+	if err != nil {
+		panic(err.Error())
+	}
+	return db
+}
 
-	var user []User
+func (s *Service) CreateUser(requestID string, req *Request) ([]byte, error) {
 
-	user, err := user_mgr.GetUserByID(req.UserID)
+	db := dbConn()
+
+	insForm, err := db.Prepare("insert into users(user_id,mobile_no,first_name,last_name,created_at) values(?,?,?,?,CURDATE())")
 
 	if err != nil {
 		result, err := json.Marshal(Response{
+			Code:    status_code.CreateUserError,
+			Message: "Create User fail",
+		})
+		return result, err
+	}
+
+	//userID := uuid.New().String()
+	userID := strconv.Itoa(rand.Intn(1000000)) // Mock ID
+	mobileNO := req.MobileNo
+	firstName := req.FirstName
+	lastName := req.LastName
+
+	insForm.Exec(userID, mobileNO, firstName, lastName)
+
+	defer db.Close()
+
+	return nil, nil
+}
+
+func (s *Service) GetUser(requestID string, req *Request) *Response {
+
+	db := dbConn()
+
+	UserID := requestID
+
+	selDB, err := db.Query("SELECT * FROM users WHERE user_id=?", UserID)
+
+	if err != nil {
+		result := Response{
 			Code:    status_code.ValidationError,
 			Message: "Inquiry Failed !",
-		})
-		return result, nil
+		}
+		return &result
 	}
+
+	user := User{}
+
+	for selDB.Next() {
+		var userID, mobileNo, firstName, lastName string
+		err = selDB.Scan(&userID, &mobileNo, &firstName, &lastName)
+		if err != nil {
+			panic(err.Error())
+		}
+		user.UserID = userID
+		user.MobileNo = mobileNo
+		user.FirstName = firstName
+		user.LastName = lastName
+	}
+
+	defer db.Close()
 
 	result := Response{
 		Code:      status_code.Success,
 		Message:   "Get User Success !",
 		UserID:    user.UserID,
-		MobileNo:  user.mobile_no,
-		FirstName: user.first_name,
-		LastName:  user.last_name,
+		MobileNo:  user.MobileNo,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
 	}
 
-	return result, err
-}
+	return &result
 
-func (s *Service) createUser(requestID string, req *Request) ([]byte, error) {
-
-	user, err := user_mgr.CreateUser(req)
-
-	if err != nil {
-		result := Response{
-			Code:    status_code.CreateUserError,
-			Message: "Create User Failed !",
-		}
-		return &result, nil
-	}
-
-	result := Response{
-		Code:      status_code.Success,
-		Message:   "Create User Success !",
-		UserID:    user.user_id,
-		MobileNo:  user.mobile_no,
-		FirstName: user.first_name,
-		LastName:  user.last_name,
-		CreatedAt: user.createdAt,
-		UpdatedAt: user.updatedAt,
-		DeletedAt: user.deletedAt,
-	}
-
-	return result, err
-
-}
-
-func (s *Service) updateUser(requestID string, req *Request) ([]byte, error) {
-
-	user, err := user_mgr.UpdateUser(req)
-
-	if err != nill {
-		result := Response{
-			Code:    status_code.ErrorDefault,
-			Message: "Create User Failed !",
-		}
-		return nil, &result
-	}
-
-	user, err = user_mgr.GetListByUserID(req.UserID)
-
-	result := Response{
-		Code:      status_code.Success,
-		Message:   "Update User Success !",
-		UserID:    user.user_id,
-		MobileNo:  user.mobile_no,
-		FirstName: user.first_name,
-		LastName:  user.last_name,
-		CreatedAt: user.createdAt,
-		UpdatedAt: user.updatedAt,
-		DeletedAt: user.deletedAt,
-	}
-
-	return result, err
-}
-func (s *Service) deleteUser(requestID string, req *Request) ([]byte, error) {
-
-	user, err := user_mgr.DeleteUser(req)
-
-	if err != nil {
-		result := Response{
-			Code:      status_code.DeleteUserError,
-			Message:   "Delete User Failed !",
-			UserID:    user.user_id,
-			FirstName: user.first_name,
-			LastName:  user.last_name,
-		}
-		return nil, &result
-	}
-
-	result, err := json.Marshal(Response{
-		Code:    status_code.Success,
-		Message: "Delete User Success !",
-	})
-	return result, err
 }
