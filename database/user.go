@@ -56,7 +56,7 @@ func CreateUser(user *User) (User, error) {
 
 /*
  */
-func updateUser(user *User) (User, error) {
+func UpdateUser(user *User) (User, error) {
 	db := GetDB()
 	if err := db.Update(&user).Error; err != nil {
 		return *user, err
@@ -67,7 +67,7 @@ func updateUser(user *User) (User, error) {
 
 /*
  */
-func deleteUser(user *User) (User, error) {
+func DeleteUser(user *User) (User, error) {
 	db := GetDB()
 
 	if err := db.Delete(&user).Error; err != nil {

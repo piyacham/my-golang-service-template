@@ -2,7 +2,8 @@ package users
 
 import (
 	"encoding/json"
-	user_mgr "github.com/tinnagorn/my-golang-service-template/database/user"
+
+	user_mgr "github.com/tinnagorn/my-golang-service-template/database"
 	status_code "github.com/tinnagorn/my-golang-service-template/statuscode"
 )
 
@@ -15,54 +16,52 @@ func NewService() *Service {
 
 func (s *Service) getUser(requestID string, req *Request) ([]byte, error) {
 
+	var user []User
+
 	user, err := user_mgr.GetUserByID(req.UserID)
 
-	if err != nill {
-		result := Response{
+	if err != nil {
+		result, err := json.Marshal(Response{
 			Code:    status_code.ValidationError,
-			Message: "Inquiry Failed !"
-		}
-		return nil, &result
+			Message: "Inquiry Failed !",
+		})
+		return result, nil
 	}
 
 	result := Response{
-		Code:    status_code.Success,
-		Message: "Get User Success !",
-		UserID   : user.user_id,
-		MobileNo : user.mobile_no,
-		FirstName : user.first_name
-		LastName  : user.last_name,
-		CreatedAt : user.createdAt,
-		UpdatedAt : user.updatedAt,
-		DeletedAt : user.deletedAt
+		Code:      status_code.Success,
+		Message:   "Get User Success !",
+		UserID:    user.UserID,
+		MobileNo:  user.mobile_no,
+		FirstName: user.first_name,
+		LastName:  user.last_name,
 	}
 
 	return result, err
 }
 
-
 func (s *Service) createUser(requestID string, req *Request) ([]byte, error) {
 
 	user, err := user_mgr.CreateUser(req)
 
-	if err != nill {
+	if err != nil {
 		result := Response{
 			Code:    status_code.CreateUserError,
-			Message: "Create User Failed !"
+			Message: "Create User Failed !",
 		}
-		return nil, &result
+		return &result, nil
 	}
 
 	result := Response{
-		Code:    status_code.Success,
-		Message: "Create User Success !",
-		UserID   : user.user_id,
-		MobileNo : user.mobile_no,
-		FirstName : user.first_name
-		LastName  : user.last_name,
-		CreatedAt : user.createdAt,
-		UpdatedAt : user.updatedAt,
-		DeletedAt : user.deletedAt
+		Code:      status_code.Success,
+		Message:   "Create User Success !",
+		UserID:    user.user_id,
+		MobileNo:  user.mobile_no,
+		FirstName: user.first_name,
+		LastName:  user.last_name,
+		CreatedAt: user.createdAt,
+		UpdatedAt: user.updatedAt,
+		DeletedAt: user.deletedAt,
 	}
 
 	return result, err
@@ -71,12 +70,12 @@ func (s *Service) createUser(requestID string, req *Request) ([]byte, error) {
 
 func (s *Service) updateUser(requestID string, req *Request) ([]byte, error) {
 
-	user, err := user_mgr.updateUser(req)
+	user, err := user_mgr.UpdateUser(req)
 
 	if err != nill {
 		result := Response{
 			Code:    status_code.ErrorDefault,
-			Message: "Create User Failed !"
+			Message: "Create User Failed !",
 		}
 		return nil, &result
 	}
@@ -84,30 +83,30 @@ func (s *Service) updateUser(requestID string, req *Request) ([]byte, error) {
 	user, err = user_mgr.GetListByUserID(req.UserID)
 
 	result := Response{
-		Code:    status_code.Success,
-		Message: "Update User Success !",
-		UserID   : user.user_id,
-		MobileNo : user.mobile_no,
-		FirstName : user.first_name
-		LastName  : user.last_name,
-		CreatedAt : user.createdAt,
-		UpdatedAt : user.updatedAt,
-		DeletedAt : user.deletedAt
+		Code:      status_code.Success,
+		Message:   "Update User Success !",
+		UserID:    user.user_id,
+		MobileNo:  user.mobile_no,
+		FirstName: user.first_name,
+		LastName:  user.last_name,
+		CreatedAt: user.createdAt,
+		UpdatedAt: user.updatedAt,
+		DeletedAt: user.deletedAt,
 	}
 
 	return result, err
 }
 func (s *Service) deleteUser(requestID string, req *Request) ([]byte, error) {
-	
-	user, err := user_mgr.deleteUser(req)
 
-	if err != nil { 
+	user, err := user_mgr.DeleteUser(req)
+
+	if err != nil {
 		result := Response{
-			Code:    status_code.DeleteUserError,
-			Message: "Delete User Failed !"
-			UserID   : user.user_id,
-			FirstName : user.first_name
-			LastName  : user.last_name
+			Code:      status_code.DeleteUserError,
+			Message:   "Delete User Failed !",
+			UserID:    user.user_id,
+			FirstName: user.first_name,
+			LastName:  user.last_name,
 		}
 		return nil, &result
 	}
